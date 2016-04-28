@@ -1,4 +1,4 @@
-#include "ncd_gateway.h"
+#include "master_gateway.h"
 
 //i2c,32,writem,0,252|6,252
 int gatewayCommand(String command){
