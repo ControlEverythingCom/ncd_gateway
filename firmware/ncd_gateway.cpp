@@ -1,4 +1,4 @@
-#include "master_gateway.h"
+#include "ncd_gateway.h"
 
 int byte[]::toInt();
 
