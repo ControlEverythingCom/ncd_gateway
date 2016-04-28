@@ -1,7 +1,5 @@
 #include "ncd_gateway.h"
 
-int byte[]::toInt();
-
 //i2c,32,writem,0,252|6,252
 int gatewayCommand(String command){
     int s = command.indexOf(',');
@@ -18,8 +16,6 @@ int gatewayCommand(String command){
     String args = command.substring(s+1);
     
     int response = 0;
-    
-    Serial.print(bytesToInt(btest, 6));
     
     if(type.equals("i2c")){
         if(func.equals("read")){
