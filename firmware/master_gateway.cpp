@@ -1,4 +1,7 @@
 #include "master_gateway.h"
+#include "S3B.h"
+
+S3B sModule;
 
 //i2c,32,writem,0,252|6,252
 int gatewayCommand(String command){
@@ -7,7 +10,7 @@ int gatewayCommand(String command){
     
     command = command.substring(s+1);
     s = command.indexOf(',');
-    int addr = command.substring(0, s).toInt();
+    String address = command.substring(0, s);
     
     command = command.substring(s+1);
     s = command.indexOf(',');
@@ -17,7 +20,10 @@ int gatewayCommand(String command){
     
     int response = 0;
     
+    Serial.println(address);
+    
     if(type.equals("i2c")){
+        int addr = address.toInt();
         if(func.equals("read")){
             s = args.indexOf(',');
             int size = args.substring(0, s).toInt();
@@ -38,19 +44,40 @@ int gatewayCommand(String command){
             Serial.print(args);
 	        Serial.println(".");
 	        
-            response = writeCommandI2C(addr, args);
+            response = writeCommandsI2C(addr, args);
         }
-        else if(func.equals("writem")){
+    }
+    if(type.equals("s3b")){
+        byte s3bAddress[8];
+        sModule.parseAddress(address, s3bAddress);
+        if(func.equals("read")){
+            s = args.indexOf(',');
+            int size = args.substring(0, s).toInt();
+            args = args.substring(s+1);
+            byte buff[size];
+            // readCommandI2C(addr, args, buff, size);
             
-            Serial.print(addr);
+            Serial.print("Size: ");
+            Serial.println(size);
+            //maybe check if it's more than 4 bytes here and set an event since the client should already know to listen
+            response = bytesToInt(buff, size);
+        }
+        else if(func.equals("write")){
+            Serial.println("S3B Write, here we go");
+            // Serial.print(addr);
 	        Serial.println(".");
 	        
             Serial.print(args);
 	        Serial.println(".");
-            
-            response = writeCommandsI2C(addr, args);
+	        
+	        byte stringBytes[args.length()+1];
+	        args.getBytes(stringBytes, args.length()+1);
+	        
+	        sModule.transmit(s3bAddress, stringBytes, args.length());
+	        
         }
     }
+    
     return response;
 }
 
