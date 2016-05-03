@@ -1,6 +1,6 @@
 #include "i2c_comm.h"
 
-#include "master_gateway.h"
+#include "ncd_gateway.h"
 
 int processCommandI2C(int addr, String command){
     dpm("Command", command);
