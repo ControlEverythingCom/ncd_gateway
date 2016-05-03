@@ -6,3 +6,7 @@
 
 int bytesToInt(byte* b, int size);
 int gatewayCommand(String command);
+int sendEvent(String key);
+int setEventReturn(String value);
+void dpm(String name, String arg);
+void dpm(String name, int arg);
