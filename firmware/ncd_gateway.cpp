@@ -1,4 +1,4 @@
-#include "master_gateway.h"
+#include "ncd_gateway.h"
 #include "S3B.h"
 
 S3B sModule;
