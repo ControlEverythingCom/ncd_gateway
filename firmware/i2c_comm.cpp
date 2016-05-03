@@ -1,45 +1,38 @@
 #include "i2c_comm.h"
 
+#include "master_gateway.h"
+
 int processCommandI2C(int addr, String command){
-     //copy command into a char array
-    char * cmdstr = new char[command.length() + 1];
-    strcpy(cmdstr, command.c_str());
-    
-    //initialize variable
-    int c = 0;
-    
-    //grab first part of string
-    char * p = strtok(cmdstr, ",");
-    
-    Serial.print(addr);
-    Serial.println(".");
-    
-    Serial.print(command);
-    Serial.println(".");
-    
-    Wire.beginTransmission(addr);
-    //loop through commands (',' delimited), using the first as the address and subsequent ones as commands
-    while (p != NULL) {
-        //copy command into int
-        c = atoi(p);
-        Wire.write(c);
-        Serial.print("Command: ");
-        Serial.println(c);
-        //grab next part of string
-        p = strtok(NULL, ",");
+    dpm("Command", command);
+    int pos = command.indexOf(',');
+    if(pos<0){
+        dpm("Single Byte", command.toInt());
+        Wire.beginTransmission(addr);
+        Wire.write(command.toInt());
+        return Wire.endTransmission();
     }
-    
-    Serial.print("commands written");
-    Serial.println(".");
-    //end i2c transmission
-    int status = Wire.endTransmission();
-    
-    
-    Serial.print("status: ");
-    Serial.println(status);
-    delete cmdstr;
-    
-    return status;
+    String byte = "";
+    bool open = false;
+    while(pos>-1){
+        byte = command.substring(0, pos);
+        command = command.substring(pos+1);
+        pos = command.indexOf(',');
+        if(byte.equals("delay")){
+            int mils = command.toInt();
+            dpm("Delay", mils);
+            delay(mils);
+            return 0;
+        }
+        if(!open){
+            Wire.beginTransmission(addr);
+            open = true;
+        }
+        dpm("Writing", byte);
+        Wire.write(byte.toInt());
+    }
+    dpm("Writing", command);
+    Wire.write(command.toInt());
+    return Wire.endTransmission();
 }
 
 int writeCommandsI2C(int addr, String command){
@@ -52,10 +45,15 @@ int writeCommandsI2C(int addr, String command){
     if (del == -1) return writeCommandI2C(addr, command);
     while (del > 0) {
         tries=0;
+        status=1;
         current = command.substring(0, del);
         command = command.substring(del+1);
         del = command.indexOf('|');
+        
+        dpm("Trying", current);
         while (tries<3 && status!=0){
+            
+            dpm("Try", tries);
             status = processCommandI2C(addr, current);
             tries++;
         }
@@ -63,6 +61,7 @@ int writeCommandsI2C(int addr, String command){
     tries=0;
     status=1;
     while (tries<3 && status!=0){
+        dpm("Current", command);
         status = processCommandI2C(addr, command);
         tries++;
     }
@@ -73,6 +72,7 @@ int writeCommandI2C(int addr, String command){
     int tries=0;
     int status=1;
     while (tries<3 && status!=0) {
+        dpm("Single command", command);
         status = processCommandI2C(addr, command);
         tries++;
     }
@@ -80,13 +80,7 @@ int writeCommandI2C(int addr, String command){
 };
 
 int readCommandI2C(int addr, String command, byte* buf, int size){
-    int s = command.indexOf(',');
-    s = command.indexOf(',');
-    int regAddr = command.substring(0, s).toInt();
-    
-    Wire.beginTransmission(addr);
-    Wire.write(regAddr);
-    int status = Wire.endTransmission();
+    int status = writeCommandI2C(addr, command);
     Wire.requestFrom(addr, size);
     int ind=0;
     while(ind<size){
