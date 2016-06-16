@@ -1,4 +1,7 @@
 // This #include statement was automatically added by the Particle IDE.
+#include "SparkJson/SparkJson.h"
+
+// This #include statement was automatically added by the Particle IDE.
 #include "ncd_gateway.h"
 
 // This #include statement was automatically added by the Particle IDE.
@@ -7,29 +10,29 @@
 // This #include statement was automatically added by the Particle IDE.
 #include "S3B.h"
 
-SYSTEM_THREAD(ENABLED);
+unsigned long tOut = 3000;
+
+void commandHandler(const char *event, const char *data);
 
 S3B module;
 
-byte S3BAddress[7][8] = {{0x00, 0x13, 0xA2, 0x00, 0x41, 0x02, 0x20, 0xD8}, 
-                        {0x00, 0x13, 0xA2, 0x00, 0x41, 0x02, 0x20, 0x43}, 
-                        {0x00, 0x13, 0xA2, 0x00, 0x40, 0xF2, 0x74, 0x79}, 
-                        {0x00, 0x13, 0xA2, 0x00, 0x41, 0x02, 0x20, 0xD8}, 
-                        {0x00, 0x13, 0xA2, 0x00, 0x41, 0x02, 0x20, 0xD8}, 
-                        {0x00, 0x13, 0xA2, 0x00, 0x41, 0x02, 0x20, 0xD8},
-                        {0x00, 0x13, 0xA2, 0x00, 0x41, 0x02, 0x20, 0xD8}};
+byte receiveBuffer[256];
                         
-int relayStatus = 0;
 
 void setup() {
     Particle.function("deviceComm", gatewayCommand);
+    Particle.subscribe("deviceCom", commandHandler);
+    Particle.function("clearInit", clearInit);
     Serial1.begin(115200);
     Wire.begin();
-    
-  String initCommands = "i2c,32,write,0,0|6,0";
-	byte initCommandBytes[initCommands.length()+1];
-	initCommands.getBytes(initCommandBytes, initCommands.length()+1);
-    module.transmit(S3BAddress[0], initCommandBytes, initCommands.length());
+    int initCommandsRan = runInitCommands();
+    Serial.printf("Ran %i init commands \n", initCommandsRan);
+}
+
+void commandHandler(const char *event, const char *data){
+    Serial.println("Got Event");
+    String newCommand = String(data);
+    gatewayCommand(newCommand);
 }
 
 void loop() {
@@ -47,20 +50,33 @@ void loop() {
             byte lenMSB = Serial1.read();
             byte lenLSB = Serial1.read();
             int newDataLength = (lenMSB*256)+lenLSB;
-            while(Serial1.available() < newDataLength+1 && millis() <= tOut+startTime);
-            if(Serial1.available() < newDataLength+1){
+            
+            int count = 0;
+            while(count != newDataLength+1 && millis() <= tOut+startTime){
+                if(Serial1.available() != 0){
+                    receiveBuffer[count] = Serial1.read();
+                    count++;
+                }
+            }
+            if(count < newDataLength+1){
                 Serial.println("Timeout2");
-                Serial.printf("Serial1.available(): %i, expected %i \n", Serial1.available(), newDataLength+1);
+                Serial.printf("Received Bytes: %i, expected %i \n", count, newDataLength+1);
                 return;
             }
+            Serial.printf("Received %i bytes \n", count);
             //We have all our data.
             byte newData[newDataLength+4];
             newData[0] = startDelimiter;
             newData[1] = lenMSB;
             newData[2] = lenLSB;
             for(int i = 3; i < newDataLength+4; i++){
-                newData[i] = Serial1.read();
+                newData[i] = receiveBuffer[i-3];
             }
+            Serial.print("Received: ");
+            for(int i = 0; i < sizeof(newData); i++){
+                Serial.printf("%x, ", newData[i]);
+            }
+            Serial.println();
             //validate data
             if(!module.validateReceivedData(newData, newDataLength+4)){
                 Serial.println("Invalid Data");
@@ -74,6 +90,7 @@ void loop() {
 
             }
             String stringCommand = String(receivedData);
+            Serial.println("Command: "+stringCommand);
             gatewayCommand(stringCommand);
         }else{
             Serial.printf("First byte not valid, it was: 0x%x \n", startDelimiter);
@@ -81,5 +98,3 @@ void loop() {
     }
 }
 
-//Command format
-//I2CAddress,cmd1|,cmd2|cmd3
