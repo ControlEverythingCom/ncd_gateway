@@ -6,4 +6,6 @@
 int processCommandI2C(int addr, String command);
 int writeCommandI2C(int addr, String command);
 int writeCommandsI2C(int addr, String command);
+int writeCommandsI2C(int addr, int* commands, int commandsLen);
 int readCommandI2C(int addr, String command, byte *buf, int size);
+int clearInitCommands();
