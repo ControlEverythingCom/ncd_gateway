@@ -35,6 +35,18 @@ int processCommandI2C(int addr, String command){
     return Wire.endTransmission();
 }
 
+int writeCommandsI2C(int addr, int* commands, int commandsLen){
+    Serial.printf("Running I2C Command, address: %i data: ",addr);
+    Wire.beginTransmission(addr);
+    for(int i = 0; i < commandsLen; i++){
+        Wire.write(commands[i]);
+        Serial.printf("%i, ",commands[i]);
+    }
+    int status = Wire.endTransmission();
+    Serial.printf(" Status: %i \n", status);
+    return status;
+}
+
 int writeCommandsI2C(int addr, String command){
     int tries=0;
     int status=1;
