@@ -1,14 +1,19 @@
+/*
+ *  You MUST include the sparkjson library in your app for this to validate!!!
+ *
+ */
+
 // This #include statement was automatically added by the Particle IDE.
 #include "SparkJson/SparkJson.h"
 
 // This #include statement was automatically added by the Particle IDE.
-#include "ncd_gateway.h"
+#include "ncd_gateway/ncd_gateway.h"
 
 // This #include statement was automatically added by the Particle IDE.
-#include "i2c_comm.h"
+#include "ncd_gateway/i2c_comm.h"
 
 // This #include statement was automatically added by the Particle IDE.
-#include "S3B.h"
+#include "ncd_gateway/S3B.h"
 
 unsigned long tOut = 3000;
 
