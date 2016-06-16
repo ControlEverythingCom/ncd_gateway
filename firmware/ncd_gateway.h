@@ -1,4 +1,5 @@
 
+
 #include "spark_wiring.h"
 #include "spark_wiring_constants.h"
 #include "spark_wiring_usbserial.h"
@@ -10,3 +11,5 @@ int sendEvent(String key);
 int setEventReturn(String value);
 void dpm(String name, String arg);
 void dpm(String name, int arg);
+int runInitCommands();
+int clearInit(String args);
