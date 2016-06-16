@@ -35,12 +35,12 @@ bool S3B::transmit(byte *address, byte *data, int len){
     }
     byte checksum = 0xFF - (c & 0xFF);
     payload[len+17] = checksum;
+    Serial1.write(payload, len+18);
     Serial.print("Sending: ");
     for(int i = 0; i < len+18; i++){
         Serial.printf("%x, ", payload[i]);
     }
-    Serial.println("");
-    Serial1.write(payload, len+18);
+    Serial.println();
     return true;
 };
 
@@ -48,13 +48,12 @@ bool S3B::parseAddress(String addr, byte *buffer){
     int ind = 0;
     int pos = addr.indexOf('.');
     while(pos>-1){
-        int k = addr.substring(0, pos).toInt();
-        buffer[ind] = k;
+        buffer[ind] = addr.substring(0, pos).toInt();
         addr = addr.substring(pos+1);
         pos = addr.indexOf('.');
         ind++;
     }
-    buffer[ind] = addr.substring(0, pos).toInt();
+    buffer[ind] = addr.toInt();
     return true;
 }
 
