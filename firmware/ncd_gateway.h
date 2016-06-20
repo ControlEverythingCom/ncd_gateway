@@ -5,11 +5,14 @@
 #include "spark_wiring_usbserial.h"
 #include "i2c_comm.h"
 
-int bytesToInt(byte* b, int size);
+void commandHandler(const char *event, const char *data);
+
 int gatewayCommand(String command);
-int sendEvent(String key);
-int setEventReturn(String value);
-void dpm(String name, String arg);
-void dpm(String name, int arg);
-int runInitCommands();
-int clearInit(String args);
+
+int ncdApi(byte packetBytes[]);
+void i2c_command(byte bytes[], byte *buff);
+
+void array_slice(byte bytes[], int start, int len, byte *buff);
+void array_slice(byte bytes[], int start, int len, int *buff);
+
+void init_gateway();
