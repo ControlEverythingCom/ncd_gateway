@@ -3,6 +3,7 @@
 #include "spark_wiring.h"
 #include "spark_wiring_constants.h"
 #include "spark_wiring_usbserial.h"
+#include "spark_wiring_i2c.h"
 
 void commandHandler(const char *event, const char *data);
 
