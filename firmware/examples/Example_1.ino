@@ -1,7 +1,7 @@
 // This #include statement was automatically added by the Particle IDE.
 #include "ncd_gateway/ncd_gateway.h"
 
-int testRelay(String arg)
+int testRelay(String arg);
 //S3B module;
 
 byte receiveBuffer[256];
