@@ -11,6 +11,7 @@ int gatewayCommand(String command);
 
 int ncdApi(byte packetBytes[]);
 void i2c_command(byte bytes[], byte *buff);
+int writeCommandsI2C(int addr, int* commands, int commandsLen)
 
 void array_slice(byte bytes[], int start, int len, byte *buff);
 void array_slice(byte bytes[], int start, int len, int *buff);
