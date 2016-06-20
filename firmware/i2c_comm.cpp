@@ -3,7 +3,6 @@
 #include "ncd_gateway.h"
 
 int processCommandI2C(int addr, String command){
-    dpm("Command", command);
     int pos = command.indexOf(',');
     if(pos<0){
         dpm("Single Byte", command.toInt());
@@ -30,7 +29,6 @@ int processCommandI2C(int addr, String command){
         dpm("Writing", byte);
         Wire.write(byte.toInt());
     }
-    dpm("Writing", command);
     Wire.write(command.toInt());
     return Wire.endTransmission();
 }
