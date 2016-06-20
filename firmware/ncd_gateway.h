@@ -15,5 +15,6 @@ int writeCommandsI2C(int addr, int* commands, int commandsLen);
 
 void array_slice(byte bytes[], int start, int len, byte *buff);
 void array_slice(byte bytes[], int start, int len, int *buff);
+int mask(int val, int mask, int type);
 
 void init_gateway();
