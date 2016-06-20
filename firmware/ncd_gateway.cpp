@@ -6,18 +6,6 @@ S3B sModule;
 String eventReturns[5];
 unsigned long tOut = 3000;
 
-void commandHandler(const char *event, const char *data);
-
-int gatewayCommand(String command);
-
-int ncdApi(byte packetBytes[]);
-void i2c_command(byte bytes[], byte *buff);
-
-void array_slice(byte bytes[], int start, int len, byte *buff);
-void array_slice(byte bytes[], int start, int len, int *buff);
-
-void init_gateway();
-
 //int s3b(JsonObject& root);
 
 void init_gateway(){
