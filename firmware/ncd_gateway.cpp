@@ -17,10 +17,27 @@ void init_gateway(){
 
 int gatewayCommand(String arg){
     int length = arg.length();
+    
     byte bytes[length+1];
+    
     arg.getBytes(bytes, length+1);
+    
+    int newLen = (length/2)+1;
+    
+    byte newBytes[newLen];
+    
+    int ind = 0;
+    
+    for(int i=0;i<length;i+=2){
+        if(i>0){
+            ind=i/2;
+        }
+        int b1=(bytes[i]-32) << 4;
+        int b2=bytes[i+1]-32;
+        newBytes[ind]=b1+b2;
+    }
     //send int pointer for setting to allow me to test how to return results?
-    return ncdApi(bytes);
+    return ncdApi(newBytes);
 }
 
 void commandHandler(const char *event, const char *data){
