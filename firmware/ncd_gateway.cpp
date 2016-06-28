@@ -74,10 +74,10 @@ int ncdApi(byte packetBytes[]){
                 //plain i2c w/r command
                 if(packetBytes[3] > 0){
                     buffLen = packetBytes[3];
+                    byte buff[buffLen];
+                    i2c_command(packetBytes, buff);
                 }
-                byte buff[buffLen];
-                i2c_command(packetBytes, buff);
-                break;
+                return bytesToInt(buff, buffLen);
             }
         case 189:
             {
@@ -203,4 +203,11 @@ int writeCommandsI2C(int addr, int* commands, int commandsLen){
     Serial.printf(" Status: %i \n", status);
     return status;
 };
-
+int bytesToInt(byte bytes[], int length){
+    int ret = bytes[0];
+    for(int i=1; i<length; i++){
+        ret = ret << 8;
+        ret += bytes[i];
+    }
+    return ret;
+}
