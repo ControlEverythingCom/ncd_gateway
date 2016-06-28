@@ -132,9 +132,11 @@ int mask(int val, int mask, int type){
             val ^= mask;
             break;
         case 3:
+            val &= ~mask;
+        case 4:
             val = val << mask;
             break;
-        case 4:
+        case 5:
             val = val >> mask;
     }
     return val;
