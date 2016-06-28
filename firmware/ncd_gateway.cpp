@@ -126,13 +126,14 @@ int mask(int val, int mask, int type){
             val |= mask;
             break;
         case 1:
-            val &= mask;
-            break;
-        case 2:
             val ^= mask;
             break;
-        case 3:
+        case 2:
             val &= ~mask;
+            break;
+        case 3:
+            val &= mask;
+            break;
         case 4:
             val = val << mask;
             break;
