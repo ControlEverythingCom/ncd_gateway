@@ -19,4 +19,4 @@ private:
     byte transmitOptions = 0x00;
     
 };
-int bytesToInt(byte bytes[], int length)
+int bytesToInt(byte bytes[], int length);
