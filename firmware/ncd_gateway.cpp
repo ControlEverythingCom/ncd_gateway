@@ -74,9 +74,9 @@ int ncdApi(byte packetBytes[]){
                 //plain i2c w/r command
                 if(packetBytes[3] > 0){
                     buffLen = packetBytes[3];
-                    byte buff[buffLen];
-                    i2c_command(packetBytes, buff);
                 }
+                byte buff[buffLen];
+                i2c_command(packetBytes, buff);
                 return bytesToInt(buff, buffLen);
             }
         case 189:
