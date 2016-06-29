@@ -2,15 +2,15 @@
 #include "S3B.h"
 #include "spark_wiring_eeprom.h"
 
+String firmware_version = "0.0.22";
 S3B sModule;
 String eventReturns[5];
 unsigned long tOut = 3000;
 
-//int s3b(JsonObject& root);
-
 void init_gateway(){
     Particle.function("deviceComm", gatewayCommand);
     Particle.subscribe("ncd_deviceCom", commandHandler, MY_DEVICES);
+    Particle.variable("ncd_version", firmware_version);
     Serial1.begin(115200);
     Wire.begin();
 }
@@ -41,7 +41,6 @@ int gatewayCommand(String arg){
 }
 
 void commandHandler(const char *event, const char *data){
-    Serial.println("Got Event "+String(event));
     String newCommand = String(data);
     gatewayCommand(newCommand);
 }
