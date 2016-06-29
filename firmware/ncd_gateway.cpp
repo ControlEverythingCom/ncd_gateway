@@ -48,6 +48,23 @@ int ncdApi(byte packetBytes[]){
     int buffLen = 1;
     Serial.println(String(packetBytes[0]));
     switch(packetBytes[0]){
+        case 186:
+            {
+                //I2C bus scan
+                int start = packetBytes[1]*32+1;
+                int end = start+31;
+                byte addrStatus = 1;
+                int status = 0;
+                for(start;start<end;start++){
+                    Wire.beginTransmission(start);
+                    addrStatus = Wire.endTransmission();
+                    if(start+31 > end){
+                        status = status << 1;
+                    }
+                    status+=addrStatus;
+                }
+                return status;
+            }
         case 187:
             {
                 //packet of packets
