@@ -54,6 +54,7 @@ int ncdApi(byte packetBytes[]){
                 //packet of packets
                 int i=2;
                 int max;
+                int status[packetBytes[1]];
                 for(int pn = 0; pn<packetBytes[1]; pn++){
                     
                     max=i+packetBytes[i];
@@ -65,9 +66,9 @@ int ncdApi(byte packetBytes[]){
                         intPacket[ni]=packetBytes[i];
                         ni++;
                     }
-                    ncdApi(intPacket);
+                    status[pn]=ncdApi(intPacket);
                 }
-                break;
+                return bytesToInt(status, packetBytes[1]);
             }
         case 188:
             {
@@ -114,8 +115,7 @@ int ncdApi(byte packetBytes[]){
                     wi++;
                 }
                 
-                writeCommandsI2C(addr, writeVals, writeCommandLen);
-                break;
+                return writeCommandsI2C(addr, writeVals, writeCommandLen);
             }
     }
     return 1;
