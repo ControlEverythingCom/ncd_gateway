@@ -70,7 +70,7 @@ int ncdApi(byte packetBytes[]){
                 //packet of packets
                 int i=2;
                 int max;
-                int status[packetBytes[1]];
+                byte status[packetBytes[1]];
                 for(int pn = 0; pn<packetBytes[1]; pn++){
                     
                     max=i+packetBytes[i];
