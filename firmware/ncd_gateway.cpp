@@ -2,7 +2,7 @@
 #include "S3B.h"
 #include "spark_wiring_eeprom.h"
 
-String firmware_version = "000022";
+String firmware_version = "000026";
 S3B sModule;
 String eventReturns[5];
 unsigned long tOut = 3000;
