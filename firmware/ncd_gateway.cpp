@@ -52,14 +52,17 @@ int ncdApi(byte packetBytes[]){
             {
                 //I2C bus scan
                 int start = packetBytes[1]*32+1;
-                int end = start+31;
-                byte addrStatus = 1;
+                int end = start+32;
+                int addrStatus;
                 int status = 0;
                 for(start;start<end;start++){
                     Wire.beginTransmission(start);
                     addrStatus = Wire.endTransmission();
-                    if(start+31 > end){
+                    if(start+32 > end){
                         status = status << 1;
+                    }
+                    if(addrStatus > 0){
+                        addrStatus = 1;
                     }
                     status+=addrStatus;
                 }
