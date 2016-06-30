@@ -2,6 +2,6 @@
   "name": "ncd_gateway",
   "author": "Trey Felton (trey@controleverything.com)",
   "license": "MIT",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "Provides a simple gateway for communicating with I2C and S3B products."
 }
