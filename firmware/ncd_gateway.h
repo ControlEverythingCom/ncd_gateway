@@ -18,3 +18,4 @@ void array_slice(byte bytes[], int start, int len, int *buff);
 int mask(int val, int mask, int type);
 
 void init_gateway();
+int hexToInt(String arg, byte bytes[], int length);
