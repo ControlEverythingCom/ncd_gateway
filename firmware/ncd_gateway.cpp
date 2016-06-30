@@ -2,7 +2,7 @@
 #include "S3B.h"
 #include "spark_wiring_eeprom.h"
 
-String firmware_version = "0.0.22";
+String firmware_version = "000022";
 S3B sModule;
 String eventReturns[5];
 unsigned long tOut = 3000;
@@ -48,6 +48,10 @@ int ncdApi(byte packetBytes[]){
     int buffLen = 1;
     Serial.println(String(packetBytes[0]));
     switch(packetBytes[0]){
+        case 185:
+            {
+                return firmware_version.toInt();
+            }
         case 186:
             {
                 //I2C bus scan
