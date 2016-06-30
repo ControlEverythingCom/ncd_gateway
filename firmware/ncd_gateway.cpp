@@ -2,7 +2,7 @@
 #include "S3B.h"
 #include "spark_wiring_eeprom.h"
 
-String firmware_version = "000026";
+String firmware_version = "000027";
 S3B sModule;
 String eventReturns[5];
 unsigned long tOut = 3000;
@@ -14,30 +14,30 @@ void init_gateway(){
     Serial1.begin(115200);
     Wire.begin();
 }
+int hexToInt(String arg, byte bytes[], int length){
+    arg.getBytes(bytes, length+1);
+    for(int i=0;i<length;i++){
+        if(bytes[i]>70) bytes[i] -= 32;
+        if(bytes[i]>58) bytes[i] -= 7;
+        bytes[i] -= 48;
+    }
+    return 1;
+}
 
 int gatewayCommand(String arg){
     int length = arg.length();
     
-    byte bytes[length+1];
-    
-    arg.getBytes(bytes, length+1);
-    
-    int newLen = (length/2)+1;
-    
-    byte newBytes[newLen];
+    byte buff[length+1];
+    hexToInt(arg, buff, length);
     
     int ind = 0;
+    byte bytes[(length/2)+1];
     
     for(int i=0;i<length;i+=2){
-        if(i>0){
-            ind=i/2;
-        }
-        int b1=(bytes[i]-32) << 4;
-        int b2=bytes[i+1]-32;
-        newBytes[ind]=b1+b2;
+        if(i>0) ind=i/2;
+        bytes[ind]=(buff[i] << 4)+buff[i+1];
     }
-    //send int pointer for setting to allow me to test how to return results?
-    return ncdApi(newBytes);
+    return ncdApi(bytes);
 }
 
 void commandHandler(const char *event, const char *data){
