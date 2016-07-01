@@ -23,21 +23,51 @@ int hexToInt(String arg, byte bytes[], int length){
     }
     return 1;
 }
-
+int base64ToInt(String arg, int length, byte buff[]){
+    byte bytes[length];
+    arg.getBytes(bytes, length+1);
+    int buffInd=0;
+    int cbits=0;
+    int cByte;
+    int adj;
+    for(int i=0;i<length;i++){
+        cByte = bytes[i];
+        if(cByte==43) cByte = 58;
+        if(cByte==47) cByte = 59;
+        if(cByte<65) cByte += 75;
+        if(cByte<97) cByte += 6;
+        cByte -= 71;
+        switch(cbits){
+            case 0:
+                buff[buffInd] = cByte << 2;
+                cbits = 6;
+                break;
+            case 2:
+                buff[buffInd] = buff[buffInd]+cByte;
+                buffInd++;
+                cbits = 0;
+                break;
+            case 4:
+                buff[buffInd] = buff[buffInd] + (cByte >> 2);
+                buffInd++;
+                buff[buffInd] = (cByte & 3) << 6;
+                cbits = 2;
+                break;
+            case 6:
+                buff[buffInd] = buff[buffInd] + (cByte >> 4);
+                buffInd++;
+                buff[buffInd] = (cByte & 15) << 4;
+                cbits = 4;
+                break;
+        }
+    }
+    return 1;
+}
 int gatewayCommand(String arg){
     int length = arg.length();
-    
-    byte buff[length+1];
-    hexToInt(arg, buff, length);
-    
-    int ind = 0;
-    byte bytes[(length/2)+1];
-    
-    for(int i=0;i<length;i+=2){
-        if(i>0) ind=i/2;
-        bytes[ind]=(buff[i] << 4)+buff[i+1];
-    }
-    return ncdApi(bytes);
+    byte buff[length];
+    base64ToInt(arg, buff, length);
+    return ncdApi(buff);
 }
 
 void commandHandler(const char *event, const char *data){
