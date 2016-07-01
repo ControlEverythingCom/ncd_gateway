@@ -19,3 +19,4 @@ int mask(int val, int mask, int type);
 
 void init_gateway();
 int hexToInt(String arg, byte bytes[], int length);
+int base64ToInt(String arg, byte buff[], int length);
