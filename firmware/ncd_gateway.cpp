@@ -23,7 +23,7 @@ int hexToInt(String arg, byte bytes[], int length){
     }
     return 1;
 }
-int base64ToInt(String arg, int length, byte buff[]){
+int base64ToInt(String arg, byte buff[], int length){
     byte bytes[length];
     arg.getBytes(bytes, length+1);
     int buffInd=0;
