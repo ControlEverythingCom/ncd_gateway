@@ -140,6 +140,12 @@ int ncdApi(byte packetBytes[]){
                 
                 return writeCommandsI2C(addr, writeVals, writeCommandLen);
             }
+        case 190:
+            {
+                int delayTime = (packetBytes[1] << 8) + packetBytes[2];
+                delay(delayTime);
+                return 1;
+            }
     }
     return 1;
 }
