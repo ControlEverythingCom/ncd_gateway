@@ -1,5 +1,3 @@
-
-
 #include "spark_wiring.h"
 #include "spark_wiring_constants.h"
 #include "spark_wiring_usbserial.h"
@@ -20,3 +18,4 @@ int mask(int val, int mask, int type);
 void init_gateway();
 int hexToInt(String arg, byte bytes[], int length);
 int base64ToInt(String arg, byte buff[], int length);
+int bytesToInt(byte bytes[], int length);
