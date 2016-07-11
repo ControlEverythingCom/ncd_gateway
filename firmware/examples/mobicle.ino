@@ -6,16 +6,19 @@
 
 //Bus Scan (186)
 // [1] - chunk: 0=1-32, 1=33-64, 2=65-96, 3=97-127
+//-----------
 
 //Packet of packets (187)
 // [1] 1st packet length
 // [2-[[1]+1]] 1st packet
+//-----------
 
 //i2c_read - i2c_write (188)
 // [1] - Address: i2c chip address
 // [2] - Write length: number of subsequent bytes to be written
 // [3] - Bytes to be read back
 // [4] - (val(2)+2) - Bytes to be written
+//-----------
 
 //i2c_write_mask (189)
 // [1] - Address: i2c chip address
@@ -31,6 +34,7 @@
 //set only relay 1 to on
 // i2c_write_mask:  i2c address:    Mask op:    Masked Offsets: Read command length:    Read command bytes: Read bytes: Write command length:   Write command bytes:    Bytes to read after write
 // 1:               32:             0:          16:             1:                      10:                 1:          2:                      10:1:                   0
+//------------
 
 //Delay (190)
 // [1] MSB
