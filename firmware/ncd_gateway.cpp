@@ -1,9 +1,7 @@
 #include "ncd_gateway.h"
-#include "S3B.h"
 #include "spark_wiring_eeprom.h"
 
 String firmware_version = "000029";
-S3B sModule;
 String eventReturns[5];
 unsigned long tOut = 3000;
 
@@ -11,7 +9,6 @@ void init_gateway(){
     Particle.function("deviceComm", gatewayCommand);
     Particle.subscribe("ncd_deviceCom", commandHandler, MY_DEVICES);
     Particle.variable("ncd_version", firmware_version);
-    Serial1.begin(115200);
     Wire.begin();
 }
 int hexToInt(String arg, byte bytes[], int length){
@@ -67,6 +64,7 @@ int gatewayCommand(String arg){
     int length = arg.length();
     byte buff[length];
     base64ToInt(arg, buff, length);
+    Serial.println(arg);
     return ncdApi(buff);
 }
 
@@ -85,6 +83,8 @@ int ncdApi(byte packetBytes[]){
         case 186:
             {
                 //I2C bus scan
+                Serial.println(String(packetBytes[1]));
+                Serial.println(String(packetBytes[2]));
                 int start = packetBytes[1]*32+1;
                 int end = start+32;
                 int addrStatus;
@@ -97,6 +97,9 @@ int ncdApi(byte packetBytes[]){
                     }
                     if(addrStatus > 0){
                         addrStatus = 1;
+                    }else{
+                        Serial.print("Device found on: ");
+                        Serial.println(start);
                     }
                     status+=addrStatus;
                 }
