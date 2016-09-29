@@ -5,12 +5,40 @@ String firmware_version = "000029";
 String eventReturns[5];
 unsigned long tOut = 3000;
 
+int SerialLock = 0;
+
 void init_gateway(){
     Particle.function("deviceComm", gatewayCommand);
+    
     Particle.subscribe("ncd_deviceCom", commandHandler, MY_DEVICES);
     Particle.variable("ncd_version", firmware_version);
     Wire.begin();
 }
+
+void loop_gateway(){
+    if(Serial.available() > 0){
+        //Serial.println('input');
+        int rlen = Serial.available();
+        byte buff[rlen];
+        for(int rb=0; rb<rlen; rb++){
+            buff[rb] = Serial.read();
+            
+        }
+        int resLen = ncdApi(buff, true);
+        if(resLen > 0){
+            byte retBuff[resLen];
+            for(int resb=0; resb<resLen; resb++){
+                retBuff[resb] = Serial1.read();
+                Serial.print(retBuff[resb]);
+                Serial.print(' ');
+            }
+            Serial.write(retBuff, resLen);
+            //return;
+        }
+        //Serial1.end();
+        //Serial.println('fin');
+    }
+};
 int hexToInt(String arg, byte bytes[], int length){
     arg.getBytes(bytes, length+1);
     for(int i=0;i<length;i++){
@@ -26,7 +54,6 @@ int base64ToInt(String arg, byte buff[], int length){
     int buffInd=0;
     int cbits=0;
     int cByte;
-    int adj;
     for(int i=0;i<length;i++){
         cByte = bytes[i];
         if(cByte==43) cByte = 58;
@@ -64,7 +91,6 @@ int gatewayCommand(String arg){
     int length = arg.length();
     byte buff[length];
     base64ToInt(arg, buff, length);
-    Serial.println(arg);
     return ncdApi(buff);
 }
 
@@ -73,9 +99,31 @@ void commandHandler(const char *event, const char *data){
     gatewayCommand(newCommand);
 }
 int ncdApi(byte packetBytes[]){
+    return ncdApi(packetBytes, false);
+}
+int ncdApi(byte packetBytes[], bool ka){
     int buffLen = 1;
-    Serial.println(String(packetBytes[0]));
     switch(packetBytes[0]){
+        case 184:
+            {
+                
+                //byte pins[20] = {D0, D1, D2, D3, D4, D5, D6, D7, A0, A1, A2, A3, A4, A5, A6, A7, DAC1, DAC2, WKP, RX, TX};
+                
+                if(packetBytes[1]==1){
+                    return digitalRead(packetBytes[2]);
+                }else if(packetBytes[1] == 2){
+                    digitalWrite(packetBytes[2], packetBytes[3]);
+                    return 1;
+                }
+                //just read the status of the available GPIOs and return them
+                 //int status = 0;
+                 //for(int i=0;i<20;i++){
+                    //status = status << 1;
+                    //status += digitalRead(pins[i]);
+                 //}
+                 //return status;
+                 return 1;
+            }
         case 185:
             {
                 return firmware_version.toInt();
@@ -83,13 +131,13 @@ int ncdApi(byte packetBytes[]){
         case 186:
             {
                 //I2C bus scan
-                Serial.println(String(packetBytes[1]));
-                Serial.println(String(packetBytes[2]));
+                //Serial.println(String(packetBytes[1]));
+                //Serial.println(String(packetBytes[2]));
                 int start = packetBytes[1]*32+1;
                 int end = start+32;
                 int addrStatus;
                 int status = 0;
-                for(start;start<end;start++){
+                for(;start<end;start++){
                     Wire.beginTransmission(start);
                     addrStatus = Wire.endTransmission();
                     if(start+32 > end){
@@ -118,7 +166,7 @@ int ncdApi(byte packetBytes[]){
                     byte intPacket[packetBytes[i]];
                     i++;
                     int ni=0;
-                    for(i;i<=max;i++){
+                    for(;i<=max;i++){
                         intPacket[ni]=packetBytes[i];
                         ni++;
                     }
@@ -156,9 +204,9 @@ int ncdApi(byte packetBytes[]){
                 
                 int writeVals[writeCommandLen];
                 int wi=0;
-                for(wi; wi<maskedOffsets; wi++){
+                for(; wi<maskedOffsets; wi++){
                     writeVals[wi]=writeCommand[wi];
-                    Serial.println(writeVals[wi]);
+                    //Serial.println(writeVals[wi]);
                 }
                 
                 writeCommandsI2C(addr, readCommand, readCommandLen);
@@ -166,8 +214,8 @@ int ncdApi(byte packetBytes[]){
                 for(int i=0;i<readLen;i++){
                     int current = Wire.read();
                     writeVals[wi] = mask(current, writeCommand[wi], maskOp);
-                    Serial.println(current);
-                    Serial.println(writeVals[wi]);
+                    //Serial.println(current);
+                    //Serial.println(writeVals[wi]);
                     wi++;
                 }
                 
@@ -175,10 +223,73 @@ int ncdApi(byte packetBytes[]){
             }
         case 190:
             {
-                int delayTime = (packetBytes[1] << 8) + packetBytes[2];
+                int delayTime;
+                //if(packetBytes[1] == 2){
+                    delayTime = (packetBytes[2] << 8) + packetBytes[3];
+                //}else{
+                   // delayTime = packetBytes[2];
+               // }
+                Serial.printf("Delaying for %i ",delayTime);
                 delay(delayTime);
                 return 1;
             }
+        case 169:
+            {
+                
+                Serial1.begin(115200);
+                byte buff[packetBytes[1]]; 
+                for(int i = 0; i<packetBytes[1]; i++){
+                    buff[i] = packetBytes[i+2];
+                    
+                }
+                Serial1.write(buff, packetBytes[1]);
+                delay(2);
+                int rlen = Serial1.available();
+                if(rlen>0){
+                    byte ret[rlen];
+                    for(int rb = 0; rb<rlen; rb++){
+                        ret[rb] = Serial1.read();
+                    }
+                    if(!ka) Serial1.end();
+                    return 0;
+                    //return bytesToInt(ret, rlen);
+                }
+                if(!ka) Serial1.end();
+                return 0;
+            }
+        case 170:
+            {
+                while(SerialLock>0 && (millis()-SerialLock)<100){
+                    delay(50);
+                }
+                SerialLock = millis();
+                Serial1.begin(115200);
+                int rlen=0;
+                //SINGLE_THREADED_BLOCK(){
+                    Serial1.write(packetBytes, packetBytes[1]+3);
+                    //int SerialTO = millis()+10;
+                   // while(rlen<1 && millis()>SerialTO){
+                   delay(15);
+                        rlen = Serial1.available();
+                   // }
+                    if(!ka && rlen>0){
+                        byte ret[rlen];
+                        for(int rb = 0; rb<rlen; rb++){
+                            ret[rb] = Serial1.read();
+                        }
+                        return bytesToInt(ret, rlen);
+                    }
+                //}
+                //set flag
+                
+                if(!ka){
+                    SerialLock = 0;
+                    //Serial1.end();
+                }
+                return rlen;
+            }
+            
+            
     }
     return 1;
 }
