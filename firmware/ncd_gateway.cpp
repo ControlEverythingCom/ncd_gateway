@@ -9,7 +9,6 @@ int SerialLock = 0;
 
 void init_gateway(){
     Particle.function("deviceComm", gatewayCommand);
-    
     Particle.subscribe("ncd_deviceCom", commandHandler, MY_DEVICES);
     Particle.variable("ncd_version", firmware_version);
     Wire.begin();
