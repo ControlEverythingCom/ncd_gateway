@@ -1,7 +1,7 @@
 #include "ncd_gateway.h"
 #include "spark_wiring_eeprom.h"
 
-String firmware_version = "000029";
+String firmware_version = "000031";
 String eventReturns[5];
 unsigned long tOut = 3000;
 
